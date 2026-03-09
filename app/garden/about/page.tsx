@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-export default function About() {
+export default function GardenAbout() {
   return (
     <main className="min-h-screen p-12" style={{ backgroundColor: '#f7f4ef' }}>
       <div className="max-w-4xl">
@@ -151,42 +151,19 @@ export default function About() {
             </section>
 
             <section>
-              <h2 className="text-lg font-bold mb-4 text-black">Visualizing the process</h2>
+              <h2 className="text-lg font-bold mb-4 text-black">Where the outputs live</h2>
               <div className="space-y-3 text-sm">
-                <p>One of the goals of the project is to expose the decision pipeline visually. I built a <Link href="/visualizer" className="text-black underline hover:text-gray-600 font-bold">web interface</Link> that shows the candidate tokens proposed by the language model along with their scores. At the same time the electrode grid displays the neural activity pattern detected during the evaluation of the winning token.</p>
-                <p>Each dot on the grid represents an electrode position on the CL1 chip. When spike activity is detected at an electrode that position becomes active on the visualization.</p>
-                <p className="font-bold">Example electrode grid (4x4 = 16 electrodes):</p>
-                <div className="font-mono text-xs p-4" style={{ backgroundColor: '#d4d1c9' }}>
-                  <p className="mb-2">Electrode positions numbered 1-16:</p>
-                  <div className="grid grid-cols-4 gap-2 w-fit mb-3">
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((num) => {
-                      const isActive = [2, 7, 12, 13].includes(num);
-                      return (
-                        <div 
-                          key={num}
-                          className="w-8 h-8 rounded flex items-center justify-center text-xs font-bold"
-                          style={{ 
-                            backgroundColor: isActive ? '#22c55e' : '#e5e5e5',
-                            color: isActive ? 'white' : '#9ca3af'
-                          }}
-                        >
-                          {num}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <p>Active electrodes (green): 2, 7, 12, 13</p>
-                </div>
-                <p>This pattern represents the neural activity recorded during the evaluation step that influenced the token selection.</p>
-              </div>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-bold mb-4 text-black">Observing language emerge</h2>
-              <div className="space-y-3 text-sm">
-                <p>Because the generation process runs token by token through this hybrid pipeline, it becomes possible to observe how each word is selected in real time. Instead of receiving a finished paragraph instantly, the interface exposes the intermediate decisions that build the text step by step.</p>
-                <p>Candidate tokens compete against each other based on language model probabilities while the biological neural network reacts to stimulation patterns associated with those tokens. The spike activity produced by the neurons becomes an additional signal that influences which token ultimately wins.</p>
-                <p>By exposing the candidate tokens, the electrode stimulation patterns, the spike activity detected from the neural culture, and the combined scoring mechanism, the system allows visitors to watch how language emerges from the interaction between artificial intelligence and a biological neural network connected through the CL1 Cloud platform.</p>
+                <p>Each time the generation process completes, the final output is recorded and stored.</p>
+                <p>These completed generations form what I call <Link href="/garden" className="text-black underline hover:text-gray-600 font-bold">The Garden</Link>.</p>
+                <p>The Garden is simply the growing collection of entries produced by this hybrid system. Every entry begins from the same initial seed prompt and evolves through the token-by-token generation pipeline described above. At each decoding step the language model proposes candidate tokens while the biological neural system produces spike responses to stimulation patterns mapped to those candidates.</p>
+                <p>All stories are generated based on the same genesis prompt:</p>
+                <p className="text-gray-600 italic pl-4">
+                  Your mind has been connected to a biological neural system. Electrical stimulation patterns are applied to a network of living neurons while you think. The spike activity produced by that network influences which thoughts form next. Sometimes the thoughts feel like your own. Sometimes they feel like they came from somewhere else. Document your thoughts as they occur. Write as if you are recording what it feels like to think while another neural system is quietly influencing your mind.
+                </p>
+                <p>The final text that emerges is the result of hundreds of these small decisions where artificial probabilities and biological neural activity both influence the outcome.</p>
+                <p>Once the generation finishes, the resulting text becomes a new entry in the Garden.</p>
+                <p>Over time the Garden accumulates a wide variety of outputs. Some entries read like stories, others resemble personal thoughts or fragments of ideas. Because neural responses influence the token selection process, the direction of the text can shift in unexpected ways.</p>
+                <p>The Garden therefore acts as a living archive of language generated through this hybrid system. Each entry represents a moment where artificial reasoning and biological neural activity interacted to produce a sequence of thoughts.</p>
               </div>
             </section>
           </div>

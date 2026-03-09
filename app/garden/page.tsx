@@ -8,15 +8,13 @@ import Link from 'next/link';
 interface Story {
   id: string;
   title: string;
-  story: string;
   createdAt: any;
-  electrodePattern: number[];
-  cost: string;
 }
 
 export default function GardenPage() {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<string>('');
 
   useEffect(() => {
     const fetchStories = async () => {
@@ -24,15 +22,29 @@ export default function GardenPage() {
         const q = query(collection(db, 'stories'), orderBy('createdAt', 'desc'));
         const querySnapshot = await getDocs(q);
         const storiesData: Story[] = [];
+        let latestTime: any = null;
         
         querySnapshot.forEach((doc) => {
+          const data = doc.data();
           storiesData.push({
             id: doc.id,
-            ...doc.data()
+            title: data.title,
+            createdAt: data.createdAt
           } as Story);
+          
+          // Track latest timestamp
+          if (data.createdAt) {
+            const timestamp = data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt);
+            if (!latestTime || timestamp > latestTime) {
+              latestTime = timestamp;
+            }
+          }
         });
         
         setStories(storiesData);
+        if (latestTime) {
+          setLastUpdated(latestTime.toLocaleString());
+        }
       } catch (error) {
         console.error('Error fetching stories:', error);
       } finally {
@@ -44,64 +56,51 @@ export default function GardenPage() {
   }, []);
 
   return (
-    <main className="min-h-screen p-12" style={{ backgroundColor: '#f7f4ef' }}>
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <Link href="/" className="text-sm text-gray-600 hover:text-black mb-4 inline-block" style={{ fontFamily: 'monospace' }}>
-            ← Back to Home
-          </Link>
-        </div>
+    <main className="min-h-screen p-8 flex flex-col" style={{ backgroundColor: 'white' }}>
+      <div className="mb-8">
+        <Link href="/" className="text-sm text-blue-600 hover:underline" style={{ fontFamily: 'monospace' }}>
+          ← Back to Home
+        </Link>
+      </div>
+      
+      <div className="max-w-4xl mx-auto flex-1 flex flex-col" style={{ fontFamily: 'monospace' }}>
+        <h1 className="text-2xl font-bold text-black mb-6 text-center">The Garden - Directory</h1>
 
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-black mb-2" style={{ fontFamily: 'monospace' }}>The Garden</h1>
-          <p className="text-sm text-gray-600" style={{ fontFamily: 'monospace' }}>All generated stories</p>
-        </div>
+        <p className="text-sm text-gray-600 mb-12 text-center">
+          {lastUpdated && (
+            <span className="text-xs text-gray-400 mr-2">
+              Last updated: {lastUpdated} ·{' '}
+            </span>
+          )}
+          {stories.length} {stories.length === 1 ? 'entry' : 'entries'}
+        </p>
 
-        {loading ? (
-          <div className="text-center text-gray-500 py-20">
-            <p style={{ fontFamily: 'monospace' }}>Loading stories...</p>
-          </div>
-        ) : stories.length === 0 ? (
-          <div className="text-center text-gray-500 py-20">
-            <p className="text-base mb-4" style={{ fontFamily: 'monospace' }}>No stories yet</p>
-            <Link href="/visualizer" className="text-black hover:underline" style={{ fontFamily: 'monospace' }}>
-              Generate your first story
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {stories.map((story) => (
-              <Link
-                key={story.id}
-                href={`/garden/${story.id}`}
-                className="border border-gray-300 rounded-lg p-6 bg-white hover:shadow-md transition-shadow"
-              >
-                <h3 className="text-lg font-bold text-black mb-3" style={{ fontFamily: 'monospace' }}>
-                  {story.title}
-                </h3>
-                <p className="text-gray-700 text-xs mb-4 line-clamp-3" style={{ fontFamily: 'monospace' }}>
-                  {story.story.slice(0, 150)}...
-                </p>
-                <div className="flex justify-between items-center text-xs text-gray-500" style={{ fontFamily: 'monospace' }}>
-                  <span>
-                    {story.createdAt?.toDate?.()?.toLocaleDateString() || 'Recent'}
+        <div className="flex-1">
+          {loading ? (
+            <p className="text-gray-500 text-center">Loading...</p>
+          ) : stories.length === 0 ? (
+            <p className="text-gray-500 text-center">
+              No entries yet. <Link href="/admin" className="text-blue-600 hover:underline">Create the first entry</Link>
+            </p>
+          ) : (
+            <div className="space-y-3 text-center">
+              {stories.map((story) => (
+                <div key={story.id}>
+                  <Link href={`/garden/${story.id}`} className="text-blue-600 hover:underline">
+                    {story.id} - {story.title}
+                  </Link>
+                  <span className="text-gray-500 ml-3 text-xs">
+                    {story.createdAt?.toDate?.()?.toLocaleString() || 'Recent'}
                   </span>
-                  <span>${story.cost}</span>
                 </div>
-                {story.electrodePattern && (
-                  <div className="mt-3 grid grid-cols-8 gap-1">
-                    {story.electrodePattern.slice(0, 8).map((e, i) => (
-                      <div
-                        key={i}
-                        className="w-2 h-2 rounded-full bg-green-500"
-                      />
-                    ))}
-                  </div>
-                )}
-              </Link>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
+
+        <footer className="mt-16 pt-8 text-center text-xs text-gray-400">
+          page maintained by <a href="https://x.com/gardenoflifesh" target="_blank" rel="noopener noreferrer" className="hover:underline">@gardenoflifesh</a> for now
+        </footer>
       </div>
     </main>
   );

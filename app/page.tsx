@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
@@ -55,8 +56,8 @@ export default function Home() {
   const maxFrequency = Math.max(...electrodeFrequency, 1);
 
   return (
-    <main className="min-h-screen p-12" style={{ backgroundColor: '#f7f4ef' }}>
-      <div className="max-w-6xl mx-auto">
+    <main className="min-h-screen flex flex-col" style={{ backgroundColor: '#f7f4ef' }}>
+      <div className="max-w-6xl mx-auto flex-1 p-12">
         {/* Header */}
         <div className="mb-16 text-center">
           <h1 className="text-4xl font-bold mb-2 text-black" style={{ fontFamily: 'monospace', letterSpacing: '0.02em' }}>
@@ -116,14 +117,21 @@ export default function Home() {
         {/* Writings Section */}
         <div className="mb-16">
           <h2 className="text-2xl font-bold mb-8 text-black" style={{ fontFamily: 'monospace' }}>
-            WRITINGS
+            Writings
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl">
             {/* Garden of Life Writing */}
-            <Link href="/about" className="group block">
+            <Link href="/garden/about" className="group block">
               <div className="border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
-                <div className="aspect-[4/3] bg-gray-200"></div>
+                <div className="aspect-[4/3] relative bg-gray-200">
+                  <Image
+                    src="/image (43).jpg"
+                    alt="Garden of Life"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
                 <div className="p-4">
                   <h3 className="text-lg font-bold mb-1 text-black" style={{ fontFamily: 'monospace' }}>
                     Garden of Life
@@ -142,7 +150,14 @@ export default function Home() {
             {/* The Grid Writing */}
             <Link href="/grid/about" className="group block">
               <div className="border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
-                <div className="aspect-[4/3] bg-gray-200"></div>
+                <div className="aspect-[4/3] relative bg-gray-200">
+                  <Image
+                    src="/image (44).jpg"
+                    alt="The Grid"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
                 <div className="p-4">
                   <h3 className="text-lg font-bold mb-1 text-black" style={{ fontFamily: 'monospace' }}>
                     The Grid
@@ -157,22 +172,15 @@ export default function Home() {
                 </div>
               </div>
             </Link>
-
-            <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm opacity-50">
-              <div className="aspect-[4/3] bg-gray-200"></div>
-              <div className="p-4">
-                <h3 className="text-lg font-bold mb-1 text-gray-400" style={{ fontFamily: 'monospace' }}>
-                  Project 3
-                </h3>
-                <p className="text-xs text-gray-400" style={{ fontFamily: 'monospace' }}>
-                  Coming soon
-                </p>
-              </div>
-            </div>
           </div>
         </div>
 
       </div>
+      
+      {/* Footer */}
+      <footer className="py-8 text-center text-xs text-gray-400" style={{ fontFamily: 'monospace' }}>
+        page maintained by <a href="https://x.com/gardenoflifesh" target="_blank" rel="noopener noreferrer" className="hover:underline">@gardenoflifesh</a> for now
+      </footer>
     </main>
   );
 }
