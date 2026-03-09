@@ -1,65 +1,178 @@
-import Image from "next/image";
+'use client';
+
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
 
 export default function Home() {
+  const [electrodeFrequency, setElectrodeFrequency] = useState<number[]>(new Array(16).fill(0));
+  const [storyCount, setStoryCount] = useState(0);
+  const [lastUpdated, setLastUpdated] = useState<string>('');
+
+  useEffect(() => {
+    const fetchGridData = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'stories'));
+        const frequency = new Array(16).fill(0);
+        let count = 0;
+        let latestTime: any = null;
+        
+        querySnapshot.forEach((doc) => {
+          count++;
+          const data = doc.data();
+          
+          // Track latest timestamp
+          if (data.createdAt) {
+            const timestamp = data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt);
+            if (!latestTime || timestamp > latestTime) {
+              latestTime = timestamp;
+            }
+          }
+          
+          if (data.electrodePattern) {
+            data.electrodePattern.forEach((electrode: number) => {
+              if (electrode >= 1 && electrode <= 16) {
+                frequency[electrode - 1]++;
+              }
+            });
+          }
+        });
+        
+        setElectrodeFrequency(frequency);
+        setStoryCount(count);
+        if (latestTime) {
+          setLastUpdated(latestTime.toLocaleString());
+        }
+      } catch (error) {
+        console.error('Error fetching grid data:', error);
+      }
+    };
+
+    fetchGridData();
+  }, []);
+
+  const maxFrequency = Math.max(...electrodeFrequency, 1);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main className="min-h-screen p-12" style={{ backgroundColor: '#f7f4ef' }}>
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="mb-16 text-center">
+          <h1 className="text-4xl font-bold mb-2 text-black" style={{ fontFamily: 'monospace', letterSpacing: '0.02em' }}>
+            gardenoflife.sh
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-xs text-gray-600 tracking-wide mb-3" style={{ fontFamily: 'monospace' }}>
+            Exploring Language Generation Through Neural Signals
           </p>
+          <nav className="flex justify-center gap-4 text-sm" style={{ fontFamily: 'monospace' }}>
+            <Link href="/" className="text-black hover:underline">Home</Link>
+            <Link href="/visualizer" className="text-gray-600 hover:text-black hover:underline">Visualizer</Link>
+            <Link href="/grid" className="text-gray-600 hover:text-black hover:underline">Grid</Link>
+            <Link href="/garden" className="text-gray-600 hover:text-black hover:underline">Garden</Link>
+          </nav>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Mini Grid Preview */}
+        <div className="mb-16">
+          <div className="text-center mb-3">
+            <h2 className="text-base font-bold text-black mb-1" style={{ fontFamily: 'monospace' }}>
+              The Grid
+            </h2>
+            <p className="text-xs text-gray-600" style={{ fontFamily: 'monospace' }}>
+              {storyCount} stories
+              {lastUpdated && <span className="text-gray-500"> · Last: {lastUpdated}</span>}
+            </p>
+          </div>
+          <div className="flex justify-center">
+            <div className="border border-gray-300 rounded-lg shadow-sm p-3" style={{ backgroundColor: '#fafaf9' }}>
+            <div className="grid grid-cols-4 gap-1.5">
+              {Array.from({ length: 16 }, (_, i) => {
+                const electrodeNum = i + 1;
+                const frequency = electrodeFrequency[i];
+                const intensity = frequency / maxFrequency;
+                
+                return (
+                  <div 
+                    key={electrodeNum} 
+                    className="w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold"
+                    style={{ 
+                      backgroundColor: intensity > 0 
+                        ? `rgb(${Math.floor(34 + (1 - intensity) * 100)}, ${Math.floor(197 - intensity * 100)}, ${Math.floor(94 - intensity * 60)})` 
+                        : '#e5e5e5',
+                      color: intensity > 0.6 ? 'white' : '#1a5928',
+                      fontFamily: 'monospace'
+                    }}
+                  >
+                    {electrodeNum}
+                  </div>
+                );
+              })}
+            </div>
+            </div>
+          </div>
         </div>
-      </main>
-    </div>
+
+        {/* Writings Section */}
+        <div className="mb-16">
+          <h2 className="text-2xl font-bold mb-8 text-black" style={{ fontFamily: 'monospace' }}>
+            WRITINGS
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Garden of Life Writing */}
+            <Link href="/about" className="group block">
+              <div className="border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
+                <div className="aspect-[4/3] bg-gray-200"></div>
+                <div className="p-4">
+                  <h3 className="text-lg font-bold mb-1 text-black" style={{ fontFamily: 'monospace' }}>
+                    Garden of Life
+                  </h3>
+                  <p className="text-xs text-gray-500 mb-2" style={{ fontFamily: 'monospace' }}>
+                    A Neural Language Experiment
+                  </p>
+                  <p className="text-xs text-gray-700 leading-relaxed" style={{ fontFamily: 'monospace' }}>
+                    An experiment exploring how biological style signals can influence language model decoding. 
+                    Watch token-by-token generation with simulated neural electrode patterns.
+                  </p>
+                </div>
+              </div>
+            </Link>
+
+            {/* The Grid Writing */}
+            <Link href="/grid/about" className="group block">
+              <div className="border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
+                <div className="aspect-[4/3] bg-gray-200"></div>
+                <div className="p-4">
+                  <h3 className="text-lg font-bold mb-1 text-black" style={{ fontFamily: 'monospace' }}>
+                    The Grid
+                  </h3>
+                  <p className="text-xs text-gray-500 mb-2" style={{ fontFamily: 'monospace' }}>
+                    /ɡrɪd/ n.
+                  </p>
+                  <p className="text-xs text-gray-700 leading-relaxed" style={{ fontFamily: 'monospace' }}>
+                    A collective neural memory map. Aggregated electrode patterns from all generated stories, 
+                    revealing emergent patterns in artificial cognition.
+                  </p>
+                </div>
+              </div>
+            </Link>
+
+            <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm opacity-50">
+              <div className="aspect-[4/3] bg-gray-200"></div>
+              <div className="p-4">
+                <h3 className="text-lg font-bold mb-1 text-gray-400" style={{ fontFamily: 'monospace' }}>
+                  Project 3
+                </h3>
+                <p className="text-xs text-gray-400" style={{ fontFamily: 'monospace' }}>
+                  Coming soon
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
   );
 }
