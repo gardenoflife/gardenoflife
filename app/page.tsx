@@ -179,7 +179,7 @@ export default function Home() {
       
       {/* Footer */}
       <footer className="py-8 text-center text-xs text-gray-400" style={{ fontFamily: 'monospace' }}>
-        page maintained by <a href="https://x.com/gardenoflifesh" target="_blank" rel="noopener noreferrer" className="hover:underline">@gardenoflifesh</a> for now
+        page maintained by <a href="https://x.com/rohankernel" target="_blank" rel="noopener noreferrer" className="hover:underline">@rohankernel</a> for now
       </footer>
     </main>
   );

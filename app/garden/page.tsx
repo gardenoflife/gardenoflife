@@ -99,7 +99,7 @@ export default function GardenPage() {
         </div>
 
         <footer className="mt-16 pt-8 text-center text-xs text-gray-400">
-          page maintained by <a href="https://x.com/gardenoflifesh" target="_blank" rel="noopener noreferrer" className="hover:underline">@gardenoflifesh</a> for now
+          page maintained by <a href="https://x.com/rohankernel" target="_blank" rel="noopener noreferrer" className="hover:underline">@rohankernel</a> for now
         </footer>
       </div>
     </main>
